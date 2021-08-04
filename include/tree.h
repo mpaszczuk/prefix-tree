@@ -25,7 +25,7 @@ typedef struct {
     node_t *root;
 } tree_t;
 
-void left_rotate(tree_t *tree, node_t *x) {
+void rb_left_rotate(tree_t *tree, node_t *x) {
     node_t *y = x->right;
     x->right = y->left;
     if (y->left != tree->nil) {
@@ -43,7 +43,7 @@ void left_rotate(tree_t *tree, node_t *x) {
     x->parent = y;
 }
 
-void right_rotate(tree_t *tree, node_t *y) {
+void rb_right_rotate(tree_t *tree, node_t *y) {
     node_t *x = y->left;
     y->left = x->right;
     if (x->right != tree->nil) {
