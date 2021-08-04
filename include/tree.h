@@ -1,6 +1,6 @@
 #pragma once
 
-enum {
+typedef enum {
     red,
     black
 } color_t;
@@ -11,13 +11,14 @@ typedef struct {
 
 } ip_t;
 
-typedef struct {
+typedef struct node_t node_t;
+struct node_t {
     color_t color;
     node_t *parent;
     ip_t key;
     node_t *left;
     node_t *right;
-} node_t;
+};
 
 typedef struct {
     node_t *nil;
