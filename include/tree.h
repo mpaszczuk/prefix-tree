@@ -1,5 +1,7 @@
 #pragma once
 
+#include "ip.h"
+
 typedef enum {
     red,
     black
