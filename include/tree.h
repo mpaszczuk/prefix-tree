@@ -3,8 +3,8 @@
 #include "ip.h"
 
 typedef enum {
-    red,
-    black
+    RED,
+    BLACK
 } color_t;
 
 typedef struct {
