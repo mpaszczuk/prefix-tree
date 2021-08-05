@@ -7,25 +7,22 @@ typedef enum {
     BLACK
 } color_t;
 
-typedef struct {
-    int ip;
-    int mask;
-
-} ip_t;
 
 typedef struct node_t node_t;
-struct node_t {
-    color_t color;
-    node_t *parent;
-    ip_t key;
-    node_t *left;
-    node_t *right;
-};
 
 typedef struct {
     node_t *nil;
     node_t *root;
 } tree_t;
+
+struct node_t {
+    color_t color;
+    node_t *parent;
+    unsigned int key;
+    tree_t *subtree;
+    node_t *left;
+    node_t *right;
+};
 
 void rb_left_rotate(tree_t *tree, node_t *x) {
     node_t *y = x->right;
