@@ -184,6 +184,13 @@ node_t *rb_tree_minimum(tree_t *tree, node_t *x){
     return x;
 }
 
+node_t *rb_tree_maximum(tree_t *tree, node_t *x){
+    while( x->right != tree->nil){
+        x = x->right;
+    }
+    return x;
+}
+
 void rb_delete(tree_t *tree, node_t* z){
     node_t *x = tree->nil;
     node_t *y = z;
@@ -215,4 +222,20 @@ void rb_delete(tree_t *tree, node_t* z){
     if(y_original_color == BLACK){
         rb_delete_fixup(tree, x);
     }
+}
+
+node_t *rb_search(tree_t *tree, unsigned int key){
+    node_t *node = tree->root;
+    while(node != tree->nil){
+        if(node->key > key){
+            node = node->right;
+        }
+        else if(node->key< key){
+            node = node->left;
+        }
+        else{
+            return node;
+        }
+    }
+    return tree->nil;
 }

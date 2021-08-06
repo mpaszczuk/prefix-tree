@@ -26,3 +26,5 @@ struct node_t {
 void rb_insert(tree_t *tree, node_t *z);
 void rb_delete(tree_t *tree, node_t* z);
 node_t *rb_tree_minimum(tree_t *tree, node_t *x);
+node_t *rb_tree_maximum(tree_t *tree, node_t *x);
+node_t *rb_search(tree_t *tree, unsigned int key);
