@@ -4,6 +4,7 @@ project(rekrutacja C)
 set(CMAKE_C_STANDARD 11)
 set(SRC
     src/tree.c
+    src/ip.c
 )
 
 add_executable(${CMAKE_PROJECT_NAME}

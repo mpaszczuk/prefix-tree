@@ -45,7 +45,7 @@ void rb_insert(tree_t *tree, node_t *z) {
     node_t *x = tree->root;
     while (x != tree->nil) {
         y = x;
-        if (z->key < x->key) {
+        if (compare(&z->key, &x->key) < 0 ) {
             x = x->left;
         } else {
             x = x->right;
@@ -54,7 +54,7 @@ void rb_insert(tree_t *tree, node_t *z) {
     z->parent = y;
     if (y == tree->nil) {
         tree->root = z;
-    } else if (z->key < y->key) {
+    } else if (compare(&z->key, &y->key)< -1) {
         y->left = z;
     } else {
         y->right = z;
@@ -224,13 +224,33 @@ void rb_delete(tree_t *tree, node_t* z){
     }
 }
 
-node_t *rb_search(tree_t *tree, unsigned int key){
+node_t *rb_check(tree_t *tree, unsigned int ip){
     node_t *node = tree->root;
     while(node != tree->nil){
-        if(node->key > key){
+        ip_t key = {
+            .base = ip,
+            .mask = node->key.mask
+        };
+        if(compare (&node->key, &key)> 0){
             node = node->right;
         }
-        else if(node->key< key){
+        else if(compare(&node->key, &key) < 0){
+            node = node->left;
+        }
+        else{
+            return node;
+        }
+    }
+    return tree->nil;
+}
+
+node_t *rb_search(tree_t *tree, ip_t *ip, int(*compare)(ip_t*, ip_t*)){
+    node_t *node = tree->root;
+    while(node != tree->nil){
+        if(compare (&node->key, ip)> 0){
+            node = node->right;
+        }
+        else if(compare(&node->key, ip) < 0){
             node = node->left;
         }
         else{
