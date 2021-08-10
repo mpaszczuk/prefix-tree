@@ -1,10 +1,7 @@
 #pragma once
+#include "trie.h"
 
-typedef struct {
-    unsigned int base;
-    char mask;
-} ip_t;
-
+void init_ip_trie(trie_t *trie_);
 int add(unsigned int base, char mask);
 int del(unsigned int base, char mask);
 char check(unsigned int ip);

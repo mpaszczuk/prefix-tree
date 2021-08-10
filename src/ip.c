@@ -1,45 +1,40 @@
 #include "ip.h"
-#include "tree.h"
 #include <stdlib.h>
 
-static tree_t *tree;
+static trie_t *trie;
 
-void init_tree(tree_t *tree_) {
-    tree = tree_;
+void init_ip_trie(trie_t *trie_) {
+    trie = trie_;
 }
 
 int add(unsigned int base, char mask) {
-    node_t * node;//    rb_search()
-    if(node == tree->nil){
-        node_t *new_node = (node_t *)malloc(sizeof (node_t));
-        new_node->key.base = base;
-        new_node->key.mask = mask;
-        rb_insert(tree, new_node);
+    ip_t ip = {
+        .base = base,
+        .mask = mask
+    };
+    ip_t *node_ip;
+    node_t * node = trie_search(trie, &ip);
+    if(node != NULL && node->ip != NULL) {
+        return -1;
     }
+    node_ip = (ip_t *) malloc(sizeof(ip_t));
+    node_ip->base = base;
+    node_ip->mask = mask;
+    trie_insert(trie, node_ip);
     return 0;
 }
 int del(unsigned int base, char mask) {
-    node_t * node;//    rb_search()
-    if(node != tree->nil) {
-        rb_delete(tree, node);
-    }
+    ip_t ip = {
+        .base = base,
+        .mask = mask
+    };
+    return trie_delete(trie, &ip);
 }
 char check(unsigned int ip) {
-    node_t *ip_node; // = rb_check(tree, ip);
-    if (ip_node != tree->nil) {
-        return ip_node->key.mask;
-    }
-    return -1;
+//    node_t *ip_node; // = rb_check(tree, ip);
+//    if (ip_node != tree->nil) {
+//        return ip_node->key.mask;
+//    }
+//    return -1;
 }
 
-int compare(const ip_t *ip1, const ip_t *ip2) {
-    unsigned int mask1 = 2 ^ ip1->mask - 1;
-    unsigned int mask2 = 2 ^ ip2->mask - 1;
-    if ((ip1->base & mask1) > (ip1->base & mask2)) {
-        return 1;
-    } else if ((ip1->base & mask1) < (ip1->base & mask2)) {
-        return -1;
-    } else {
-        return 0;
-    }
-}

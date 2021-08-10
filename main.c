@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "tree.h"
+#include "trie.h"
 
 int main() {
     printf("Hello, World!\n");

@@ -259,3 +259,19 @@ node_t *rb_search(tree_t *tree, ip_t *ip, int(*compare)(ip_t*, ip_t*)){
     }
     return tree->nil;
 }
+
+node_t *rb_check(tree_t *tree, ip_t *ip, int(*compare)(ip_t*, ip_t*)) {
+    node_t *node = tree->root;
+    while(node != tree->nil){
+        if(compare (&node->key, ip)> 0){
+            node = node->right;
+        }
+        else if(compare(&node->key, ip) < 0){
+            node = node->left;
+        }
+        else{
+            return node;
+        }
+    }
+    return tree->nil;
+}

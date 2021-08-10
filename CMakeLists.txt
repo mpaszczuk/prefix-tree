@@ -6,9 +6,9 @@ add_subdirectory(lib/Unity)
 set(CMAKE_C_STANDARD 11)
 
 add_library(${CMAKE_PROJECT_NAME}_lib STATIC
-        src/tree.c
+        src/trie.c
         src/ip.c
-        )
+)
 
 target_include_directories(${CMAKE_PROJECT_NAME}_lib PUBLIC ${CMAKE_SOURCE_DIR}/include)
 
