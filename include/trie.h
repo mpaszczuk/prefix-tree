@@ -18,7 +18,10 @@ typedef struct{
 } trie_t;
 
 
+node_t * new_node_t();
 void init_trie(trie_t *trie_);
 int trie_insert(trie_t *trie, ip_t *ip);
 node_t *trie_search(trie_t *trie, ip_t *ip);
 int trie_delete(trie_t *trie, ip_t *ip);
+node_t *trie_check(trie_t *trie, unsigned int ip);
+void trie_print(node_t *root, int space);

@@ -31,10 +31,10 @@ int del(unsigned int base, char mask) {
     return trie_delete(trie, &ip);
 }
 char check(unsigned int ip) {
-//    node_t *ip_node; // = rb_check(tree, ip);
-//    if (ip_node != tree->nil) {
-//        return ip_node->key.mask;
-//    }
-//    return -1;
+    node_t *ip_node = trie_check(trie, ip);
+    if (ip_node != NULL) {
+        return ip_node->ip->mask;
+    }
+    return -1;
 }
 
