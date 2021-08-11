@@ -19,13 +19,26 @@ void test_function_should_doBlahAndBlah(void) {
 }
 
 void test_add_ip(void) {
-    add(11<<30, 4);
+    add(0b11<<30, 4);
     add(1<<31, 4);
     add(1510, 4);
     add(1023, 3);
     add(102310, 5);
     add(40, 2);
     add(151011, 4);
+    trie_print(trie->root, 0);
+}
+
+void test_del_ip(void) {
+    add(0b11<<30, 4);
+    add(1<<31, 4);
+    add(1510, 4);
+    add(1023, 3);
+    add(102310, 5);
+    add(40, 2);
+    add(151011, 4);
+    trie_print(trie->root, 0);
+    del(40, 2);
     trie_print(trie->root, 0);
 }
 
@@ -37,7 +50,8 @@ void test_fail(void) {
 int main(void) {
     UNITY_BEGIN();
 //    RUN_TEST(test_function_should_doBlahAndBlah);
-    RUN_TEST(test_add_ip);
+//    RUN_TEST(test_add_ip);
+    RUN_TEST(test_del_ip);
 //    RUN_TEST(test_fail);
     return UNITY_END();
 }
