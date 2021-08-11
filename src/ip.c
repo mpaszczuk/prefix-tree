@@ -7,14 +7,17 @@ void init_ip_trie(trie_t *trie_) {
     trie = trie_;
 }
 
+void deinit_ip_trie() {
+    trie_deinit(trie);
+}
+
 int add(unsigned int base, char mask) {
     ip_t ip = {
         .base = base,
-        .mask = mask
-    };
+        .mask = mask};
     ip_t *node_ip;
-    node_t * node = trie_search(trie, &ip);
-    if(node != NULL && node->ip != NULL) {
+    node_t *node = trie_search(trie, &ip);
+    if (node != NULL && node->ip != NULL) {
         return -1;
     }
     node_ip = (ip_t *) malloc(sizeof(ip_t));
@@ -26,8 +29,7 @@ int add(unsigned int base, char mask) {
 int del(unsigned int base, char mask) {
     ip_t ip = {
         .base = base,
-        .mask = mask
-    };
+        .mask = mask};
     return trie_delete(trie, &ip);
 }
 char check(unsigned int ip) {
@@ -37,4 +39,3 @@ char check(unsigned int ip) {
     }
     return -1;
 }
-

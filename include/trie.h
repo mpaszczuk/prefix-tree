@@ -19,7 +19,8 @@ typedef struct{
 
 
 node_t * new_node_t();
-void init_trie(trie_t *trie_);
+void trie_init(trie_t *trie_);
+void trie_deinit();
 int trie_insert(trie_t *trie, ip_t *ip);
 node_t *trie_search(trie_t *trie, ip_t *ip);
 int trie_delete(trie_t *trie, ip_t *ip);
