@@ -5,6 +5,7 @@ static trie_t *trie;
 
 void init_ip_trie(trie_t *trie_) {
     trie = trie_;
+    trie->root = NULL;
 }
 
 void deinit_ip_trie() {

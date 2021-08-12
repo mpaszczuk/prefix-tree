@@ -1,17 +1,20 @@
 #include "trie.h"
 #include <stddef.h>
-#include <stdlib.h>
 #include <stdio.h>
+#include <stdlib.h>
 
-node_t * new_node_t()
-{
-    node_t* node = malloc(sizeof(node_t));
-    node->child = malloc(2 * sizeof(node_t*));
+node_t *new_node_t() {
+    node_t *node = malloc(sizeof(node_t));
+    node->child = malloc(2 * sizeof(node_t *));
     node->child[0] = node->child[1] = NULL;
+    node->ip = NULL;
+    node->parent = NULL;
     return node;
 }
 
-int trie_insert(trie_t *trie, ip_t *ip) {
+node_t *trie_insert(trie_t *trie, ip_t *ip) {
+    unsigned int mask = ((1<<(ip->mask)) - 1) << (32 - ip->mask);
+    ip->base = ip->base & mask;
     if (trie->root == NULL) {
         trie->root = new_node_t();
         trie->root->parent = NULL;
@@ -23,7 +26,7 @@ int trie_insert(trie_t *trie, ip_t *ip) {
     //        }
     node_t *current = trie->root;
     for (unsigned int i = 0; i < ip->mask; ++i) {
-        unsigned int val = (ip->base & 1 << (32 - i - 1)) >> (32 - i - 1);
+        unsigned int val = (ip->base & (1 << (32 - i - 1))) >> (32 - i - 1);
         if (current->child[val] == NULL) {
             current->child[val] = new_node_t();
             current->child[val]->parent = current;
@@ -31,34 +34,35 @@ int trie_insert(trie_t *trie, ip_t *ip) {
         current = current->child[val];
     }
     current->ip = ip;
+    return current;
 }
 
-void node_deinit(node_t* node){
-    for(int i =0; i <2; ++i){
-        if(node->child[i] != NULL) {
+void node_deinit(node_t *node) {
+    for (int i = 0; i < 2; ++i) {
+        if (node->child[i] != NULL) {
             node_deinit(node->child[i]);
+            node->child[i] = NULL;
         }
     }
-    if(node->ip != NULL){
+    if (node->ip != NULL) {
         free(node->ip);
+        node->ip = NULL;
     }
     free(node);
 }
 
-void trie_deinit(trie_t * trie){
+void trie_deinit(trie_t *trie) {
     node_deinit(trie->root);
     free(trie);
 }
 
-
-
 node_t *trie_search(trie_t *trie, ip_t *ip) {
     node_t *current = trie->root;
-    if(current == NULL){
+    if (current == NULL) {
         return NULL;
     }
     for (int i = 0; i < ip->mask; ++i) {
-        unsigned int val = (ip->base & (2 << (32 - i-1))) >> (32 - i-1);
+        unsigned int val = (ip->base & (2 << (32 - i - 1))) >> (32 - i - 1);
         if (current->child[val] == NULL) {
             return NULL;
         }
@@ -129,10 +133,10 @@ node_t *trie_next(node_t *node) {
     return node->parent;
 }
 
-int COUNT=10;
+int COUNT = 10;
 
 void trie_print(node_t *root, int space) {
-    if (root == NULL){
+    if (root == NULL) {
         return;
     }
     // Increase distance between levels
@@ -144,16 +148,16 @@ void trie_print(node_t *root, int space) {
     // Print current node after space
     // count
     printf("\n");
-    for (int i = COUNT; i < space; i++){
+    for (int i = COUNT; i < space; i++) {
         printf(" ");
     }
     unsigned int val;
-    if(root->parent != NULL)
-        val = root->parent->child[0] == root ? 0:1;
+    if (root->parent != NULL)
+        val = root->parent->child[0] == root ? 0 : 1;
     else
         val = 20;
-    if(root->ip != NULL)
-        printf("%d ip=%u mask=%d\n",val , root->ip->base, root->ip->mask);
+    if (root->ip != NULL)
+        printf("%d ip=%u mask=%d\n", val, root->ip->base, root->ip->mask);
     else
         printf("%d \n", val);
     // Process left child
