@@ -84,7 +84,7 @@ node_t *trie_search(trie_t *trie, ip_t *ip) {
         return NULL;
     }
     for (int i = 0; i < ip->mask; ++i) {
-        unsigned int val = (ip->base & (2 << (32 - i - 1))) >> (32 - i - 1);
+        unsigned int val = (ip->base & (1 << (32 - i - 1))) >> (32 - i - 1);
         if (current->child[val] == NULL) {
             return NULL;
         }
@@ -98,7 +98,7 @@ node_t *trie_check(trie_t *trie, unsigned int ip) {
     node_t *previous = NULL;
     for (unsigned int i = 1; current != NULL; ++i) {
         previous = current;
-        unsigned int val = (ip & (1 << (32 - i))) >> (32 - i);
+        unsigned int val = (ip & (1 << (32 - i))) >> (32 - i); // TODO zobaczy czy to bangla
         current = current->child[val];
     }
     while (previous != NULL && previous->ip == NULL) {
