@@ -12,6 +12,25 @@ node_t *new_node_t() {
     return node;
 }
 
+node_t *del_node_t(node_t* node){
+    if(node->ip != NULL){
+       free(node->ip) ;
+       node->ip = NULL;
+    }
+    if(node->child != NULL){
+        free(node->child) ;
+        node->child = NULL;
+    }
+    if(node->parent != NULL){
+       if(node->parent->child[LEFT_CHILD] == node){
+            node->parent->child[LEFT_CHILD] = NULL;
+       }
+       else if(node->parent->child[RIGHT_CHILD] == node){
+           node->parent->child[RIGHT_CHILD] = NULL;
+       }
+    }
+}
+
 node_t *trie_insert(trie_t *trie, ip_t *ip) {
     unsigned int mask = ((1<<(ip->mask)) - 1) << (32 - ip->mask);
     ip->base = ip->base & mask;
@@ -38,6 +57,9 @@ node_t *trie_insert(trie_t *trie, ip_t *ip) {
 }
 
 void node_deinit(node_t *node) {
+    if(node == NULL){
+        return;
+    }
     for (int i = 0; i < 2; ++i) {
         if (node->child[i] != NULL) {
             node_deinit(node->child[i]);
@@ -101,9 +123,12 @@ int trie_delete(trie_t *trie, ip_t *ip) {
         return -1;
     }
     node_t *parent;
-    while (!current->child[0] && !current->child[1]) {
+    while (current != NULL && !current->child[0] && !current->child[1]) {
         parent = current->parent;
-        free(current);
+        if(current == trie->root){
+            trie->root = NULL;
+        }
+        del_node_t(current);
         current = parent;
     }
     return 0;

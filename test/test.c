@@ -1,9 +1,9 @@
 #include "ip.h"
 #include "malloc.h"
 #include "stdbool.h"
-#include <stdlib.h>
 #include "trie.h"
 #include "unity.h"
+#include <stdlib.h>
 
 trie_t *trie = NULL;
 
@@ -28,7 +28,7 @@ bool check_parent_child_relation(node_t *parent, node_t *child, int child_number
 bool check_node_ip_and_mask(node_t *node) {
     unsigned int ip = 0;
     char mask;
-    node_t * current = node;
+    node_t *current = node;
     for (mask = 0; mask < IP_LENGTH; ++mask) {
         if (current->parent != NULL) {
             unsigned int tmp = current->parent->child[LEFT_CHILD] == current ? LEFT_CHILD : RIGHT_CHILD;
@@ -38,10 +38,9 @@ bool check_node_ip_and_mask(node_t *node) {
             break;
         }
     }
-    ip = ip <<(IP_LENGTH - mask);
+    ip = ip << (IP_LENGTH - mask);
     return node->ip->base == ip && node->ip->mask == mask;
 }
-
 
 void test_function_should_doBlahAndBlah(void) {
     //test stuff
@@ -55,30 +54,43 @@ void test_node_insert(void) {
     TEST_ASSERT_TRUE(check_node_ip_and_mask(node));
 }
 
-void test_trie_insert(void ){
+void test_trie_insert(void) {
     int i = RAND_MAX;
     srand(5);
-    for(int i = 0; i<1024; ++i){
+    for (int i = 0; i < 1024; ++i) {
         ip_t *ip = malloc(sizeof(ip_t));
         ip->mask = rand() % IP_LENGTH + 1;
-        ip->base = ((unsigned int)rand() * 2) ;
+        ip->base = ((unsigned int) rand() * 2);
         node_t *node = trie_insert(trie, ip);
         TEST_ASSERT_TRUE(check_node_ip_and_mask(node));
     }
+}
 
+void test_trie_insert_all(void) {
+    int i = RAND_MAX;
+    const int num_of_tests = 1024;
+    ip_t *ips[num_of_tests];
+    node_t *nodes[num_of_tests];
+    srand(5);
+    for (int i = 0; i < num_of_tests; ++i) {
+        ips[i] = malloc(sizeof(ip_t));
+        ips[i]->mask = rand() % IP_LENGTH + 1;
+        ips[i]->base = ((unsigned int) rand() * 2);
+        nodes[i] = trie_insert(trie, ips[i]);
+    }
+    for (int i = 0; i < num_of_tests; ++i) {
+        TEST_ASSERT_TRUE(check_node_ip_and_mask(nodes[i]));
+        if(nodes[i]->ip != ips[i]){
+            asm("nop");
+        }
+//        TEST_ASSERT_TRUE(nodes[i]->ip == ips[i]);
+    }
 }
 
 void test_del_ip(void) {
     add(0b11 << 30, 4);
-    add(1 << 31, 4);
-    add(1510, 4);
-    add(1023, 3);
-    add(102310, 5);
-    add(40, 2);
-    add(151011, 4);
-    trie_print(trie->root, 0);
-    del(40, 2);
-    trie_print(trie->root, 0);
+    TEST_ASSERT(del(0b11<<30, 4) == 0);
+    TEST_ASSERT_TRUE(trie->root ==NULL);
 }
 
 void test_fail(void) {
@@ -88,7 +100,10 @@ void test_fail(void) {
 // not needed when using generate_test_runner.rb
 int main(void) {
     UNITY_BEGIN();
-//    RUN_TEST(test_node_insert);
+    //    RUN_TEST(test_node_insert);
     RUN_TEST(test_trie_insert);
+    RUN_TEST(test_trie_insert_all);
+    RUN_TEST(test_del_ip);
+
     return UNITY_END();
 }
