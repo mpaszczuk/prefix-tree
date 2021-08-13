@@ -12,6 +12,13 @@ node_t *new_node_t() {
     return node;
 }
 
+ip_t *new_ip_t(){
+    ip_t *ip = (ip_t*)malloc(sizeof(ip_t));
+    ip->base = 0;
+    ip->mask = 0;
+    return ip;
+}
+
 node_t *del_node_t(node_t* node){
     if(node->ip != NULL){
        free(node->ip) ;
@@ -30,27 +37,43 @@ node_t *del_node_t(node_t* node){
        }
     }
 }
+/* Generate bitmask filed with '1' of the same length as ip->bitmask */
+unsigned int get_bitmask(char mask){
+    return ((1<<mask) - 1) << (32 - mask);
+}
 
-node_t *trie_insert(trie_t *trie, ip_t *ip) {
-    unsigned int mask = ((1<<(ip->mask)) - 1) << (32 - ip->mask);
-    ip->base = ip->base & mask;
+node_t *trie_insert(trie_t *trie, ip_t *ip_) {
+    node_t *node = trie_search(trie, ip_);
+    if (node != NULL && node->ip != NULL) {
+        return NULL;
+    }
+    /* Check if ip base has the same number of bits as bitmask. In case of differences
+     * function returns NULL ptr. Mask should be the same length as ip */
+    if(ip_->base != (ip_->base & get_bitmask(ip_->mask))){
+        return NULL;
+    }
+    ip_t *ip = new_ip_t();
+    ip->base = ip_->base;
+    ip->mask = ip_->mask;
     if (trie->root == NULL) {
         trie->root = new_node_t();
         trie->root->parent = NULL;
     }
-    //        if(count == 0)				//-------------If Subnet Mask is 0.0.0.0-----------------
-    //        {
-    //            head->isend = true;
-    //            head->data = d;
-    //        }
+    /* If ip == 0.0.0.0 and bitmask == 0 then assign it to the root */
+    if(ip->mask == 0){
+        trie->root->ip = ip;
+        return trie->root;
+    }
     node_t *current = trie->root;
+    /*Iterate through subsequent bits of ip  */
     for (unsigned int i = 0; i < ip->mask; ++i) {
-        unsigned int val = (ip->base & (1 << (32 - i - 1))) >> (32 - i - 1);
-        if (current->child[val] == NULL) {
-            current->child[val] = new_node_t();
-            current->child[val]->parent = current;
+        unsigned int bit = (ip->base & (1 << (32 - i - 1))) >> (32 - i - 1);
+        /* Check if child on specific position exists and if needed create new node */
+        if (current->child[bit] == NULL) {
+            current->child[bit] = new_node_t();
+            current->child[bit]->parent = current;
         }
-        current = current->child[val];
+        current = current->child[bit];
     }
     current->ip = ip;
     return current;

@@ -16,15 +16,7 @@ int add(unsigned int base, char mask) {
     ip_t ip = {
         .base = base,
         .mask = mask};
-    ip_t *node_ip;
-    node_t *node = trie_search(trie, &ip);
-    if (node != NULL && node->ip != NULL) {
-        return -1;
-    }
-    node_ip = (ip_t *) malloc(sizeof(ip_t));
-    node_ip->base = base;
-    node_ip->mask = mask;
-    trie_insert(trie, node_ip);
+    trie_insert(trie, &ip);
     return 0;
 }
 int del(unsigned int base, char mask) {
