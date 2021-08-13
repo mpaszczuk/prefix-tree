@@ -42,6 +42,11 @@ unsigned int get_bitmask(char mask){
     return ((1<<mask) - 1) << (32 - mask);
 }
 
+/*Get bit of value at position bit_number*/
+unsigned int get_bit(unsigned int value, unsigned char bit_number){
+    return (value & (1 << (32 - bit_number - 1))) >> (32 - bit_number - 1);
+}
+
 node_t *trie_insert(trie_t *trie, ip_t *ip_) {
     node_t *node = trie_search(trie, ip_);
     if (node != NULL && node->ip != NULL) {
@@ -83,7 +88,7 @@ void node_deinit(node_t *node) {
     if(node == NULL){
         return;
     }
-    for (int i = 0; i < 2; ++i) {
+    for (int i = 0; i < MAX_NUMBER_OF_CHILDREN; ++i) {
         if (node->child[i] != NULL) {
             node_deinit(node->child[i]);
             node->child[i] = NULL;
@@ -132,12 +137,12 @@ node_t *trie_check(trie_t *trie, unsigned int ip) {
 
 int trie_delete(trie_t *trie, ip_t *ip) {
     node_t *current = trie->root;
-    for (unsigned int i = 0; i < ip->mask; ++i) {
-        unsigned int val = (ip->base & (1 << (32 - i - 1))) >> (32 - i - 1);
-        if (current->child[val] == NULL) {
+    for (unsigned char i = 0; i < ip->mask; ++i) {
+        unsigned int bit = get_bit(ip->base, i);
+        if (current->child[bit] == NULL) {
             return -1;
         }
-        current = current->child[val];
+        current = current->child[bit];
     }
     if (current->ip) {
         free(current->ip);
@@ -146,7 +151,8 @@ int trie_delete(trie_t *trie, ip_t *ip) {
         return -1;
     }
     node_t *parent;
-    while (current != NULL && !current->child[0] && !current->child[1]) {
+    /* Remove nodes in branch without any child and ip. */
+    while (current != NULL && current->ip == NULL && !current->child[LEFT_CHILD] && !current->child[RIGHT_CHILD]) {
         parent = current->parent;
         if(current == trie->root){
             trie->root = NULL;

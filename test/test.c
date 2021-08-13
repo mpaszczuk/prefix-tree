@@ -168,9 +168,94 @@ void test_trie_insert_all(void) {
 }
 
 void test_del_ip(void) {
-    add(0b11 << 30, 4);
-    TEST_ASSERT(del(0b11 << 30, 4) == 0);
+    add(ip_to_int(10,10,0,0), 16);
+    TEST_ASSERT(del(ip_to_int(10,10,0,0), 16) == 0);
     TEST_ASSERT_TRUE(trie->root == NULL);
+}
+
+void test_del_ip_wrong_address(void) {
+    add(ip_to_int(10,10,0,0), 16);
+    TEST_ASSERT(del(ip_to_int(10,20,0,0), 16) == -1);
+}
+
+void test_del_create_entire_trie_and_delete_one(void) {
+    unsigned int ip_number_to_del = 4;
+    ip_t ips[] = {
+        {ip_to_int(40,0,0,0), 8},
+        {ip_to_int(10,0,0,0), 8},
+        {ip_to_int(11,0,0,0), 8},
+        {ip_to_int(145,0,0,0), 8},
+
+        {ip_to_int(10,10,0,0), 16},
+        {ip_to_int(10,11,0,0), 16},
+        {ip_to_int(11,11,0,0), 16},
+        {ip_to_int(145,10,0,0), 16},
+
+        {ip_to_int(10,10,1,0), 24},
+        {ip_to_int(10,11,2,0), 24},
+        {ip_to_int(11,11,1,0), 24},
+        {ip_to_int(145,10,30,0), 24},
+    };
+
+    node_t *nodes[12] = {};
+
+    for (int i = 0; i < sizeof(ips) / sizeof(ips[0]); ++i) {
+        nodes[i] = trie_insert(trie, &ips[i]);
+    }
+    TEST_ASSERT(del(ips[ip_number_to_del].base, ips[ip_number_to_del].mask) == 0);
+
+    char error_msg[256];
+    for (int i = 0; i < sizeof(ips) / sizeof(ips[0]); ++i) {
+        if(i == ip_number_to_del) continue;
+        sprintf(error_msg, "Error at element %u", i);
+        TEST_ASSERT_MESSAGE(check_node_ip_and_mask(nodes[i]), error_msg);
+        TEST_ASSERT(nodes[i]->ip->base == ips[i].base);
+        TEST_ASSERT(nodes[i]->ip->mask == ips[i].mask);
+    }
+
+    TEST_ASSERT(del(ip_to_int(10,20,0,0), 16) == -1);
+}
+
+void test_del_create_entire_trie_and_delete_all(void) {
+    unsigned int ip_number_to_del = 4;
+    ip_t ips[] = {
+        {ip_to_int(40,0,0,0), 8},
+        {ip_to_int(10,0,0,0), 8},
+        {ip_to_int(11,0,0,0), 8},
+        {ip_to_int(145,0,0,0), 8},
+
+        {ip_to_int(10,10,0,0), 16},
+        {ip_to_int(10,11,0,0), 16},
+        {ip_to_int(11,11,0,0), 16},
+        {ip_to_int(145,10,0,0), 16},
+
+        {ip_to_int(10,10,1,0), 24},
+        {ip_to_int(10,11,2,0), 24},
+        {ip_to_int(11,11,1,0), 24},
+        {ip_to_int(145,10,30,0), 24},
+    };
+
+    node_t *nodes[12] = {};
+
+    char error_msg[256];
+    for (int i = 0; i < sizeof(ips) / sizeof(ips[0]); ++i) {
+        nodes[i] = trie_insert(trie, &ips[i]);
+    }
+
+    for (int i = 0; i < sizeof(ips) / sizeof(ips[0]); ++i) {
+        sprintf(error_msg, "Error at element %u", i);
+        TEST_ASSERT_MESSAGE(del(ips[i].base, ips[i].mask) == 0, error_msg);
+    }
+    TEST_ASSERT(trie->root == NULL);
+}
+
+void test_del_0_0(void) {
+    ip_t ip1 = {
+        .base = 0,
+        .mask = 0
+    };
+    node_t *node1 = trie_insert(trie, &ip1);
+    TEST_ASSERT(del(ip1.base, ip1.mask) == 0);
 }
 
 void test_del_ip_from_trie(void) {
@@ -216,6 +301,10 @@ int main(void) {
     RUN_TEST(test_trie_insert);
     RUN_TEST(test_trie_insert_all);
     RUN_TEST(test_del_ip);
+    RUN_TEST(test_del_ip_wrong_address);
+    RUN_TEST(test_del_create_entire_trie_and_delete_one);
+    RUN_TEST(test_del_create_entire_trie_and_delete_all);
+    RUN_TEST(test_del_0_0);
 //    RUN_TEST(test_search);
 //    RUN_TEST(test_check);
 
