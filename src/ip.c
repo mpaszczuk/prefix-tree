@@ -16,7 +16,10 @@ int add(unsigned int base, char mask) {
     ip_t ip = {
         .base = base,
         .mask = mask};
-    trie_insert(trie, &ip);
+    node_t *node = trie_insert(trie, &ip);
+    if(node == NULL){
+        return -1;
+    }
     return 0;
 }
 int del(unsigned int base, char mask) {
