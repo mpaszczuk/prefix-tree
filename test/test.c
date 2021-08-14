@@ -138,9 +138,9 @@ void test_node_insert_mask_32(void) {
 void test_trie_insert(void) {
     srand(5);
     for (int i = 0; i < 1024; ++i) {
-        ip_t ip = {
-            .mask = rand() % IP_LENGTH + 1,
-            .base = ((unsigned int) rand() * 2) & get_bitmask(ip.mask)};
+        ip_t ip;
+        ip.mask = rand() % IP_LENGTH + 1;
+        ip.base = ((unsigned int) rand() * 2) & get_bitmask(ip.mask);
         node_t *node = trie_insert(trie, &ip);
         if (node == NULL) {
             continue;
@@ -157,9 +157,9 @@ void test_trie_insert_all(void) {
     node_t *nodes[num_of_tests];
     srand(5);
     for (int i = 0; i < num_of_tests; ++i) {
-        ip_t ip = {
-            .mask = rand() % IP_LENGTH + 1,
-            .base = ((unsigned int) rand() * 2) & get_bitmask(ip.mask)};
+        ip_t ip;
+        ip.mask = rand() % IP_LENGTH + 1;
+        ip.base = ((unsigned int) rand() * 2) & get_bitmask(ip.mask);
         nodes[i] = trie_insert(trie, &ip);
         if (nodes[i] == NULL) --i;
         else
@@ -376,6 +376,7 @@ void test_search_0_0(void) {
 int main(void) {
     UNITY_BEGIN();
     RUN_TEST(test_node_insert);
+    RUN_TEST(test_node_insert_small);
     RUN_TEST(test_node_insert_wrong_ip);
     RUN_TEST(test_node_insert_two_identical_nodes);
     RUN_TEST(test_node_insert_same_ip_different_mask);

@@ -28,6 +28,12 @@ int del_node_t(node_t *node) {
         node->ip = NULL;
     }
     if (node->child != NULL) {
+        if (node->child[LEFT_CHILD] != NULL) {
+            free(node->child[LEFT_CHILD]);
+        }
+        if (node->child[RIGHT_CHILD] != NULL) {
+            free(node->child[RIGHT_CHILD]);
+        }
         free(node->child);
         node->child = NULL;
     }
@@ -38,6 +44,7 @@ int del_node_t(node_t *node) {
             node->parent->child[RIGHT_CHILD] = NULL;
         }
     }
+    free(node);
     return 0;
 }
 /* Generate bitmask filed with '1' of the same length as ip->bitmask */
@@ -100,11 +107,7 @@ void node_deinit(node_t *node) {
             node->child[i] = NULL;
         }
     }
-    if (node->ip != NULL) {
-        free(node->ip);
-        node->ip = NULL;
-    }
-    free(node);
+    del_node_t(node);
 }
 
 void trie_deinit(trie_t *trie) {
