@@ -128,11 +128,13 @@ node_t *trie_search(trie_t *trie, ip_t *ip) {
 node_t *trie_check(trie_t *trie, unsigned int ip) {
     node_t *current = trie->root;
     node_t *previous = NULL;
+    /* Find the closest match node, even without set ip */
     for (unsigned int i = 0; current != NULL; ++i) {
         previous = current;
         unsigned int bit = get_bit(ip, i);
         current = current->child[bit];
     }
+    /* Go back in branch and find node with ip */
     while (previous != NULL && previous->ip == NULL) {
         previous = previous->parent;
     }
@@ -165,59 +167,4 @@ int trie_delete(trie_t *trie, ip_t *ip) {
         current = parent;
     }
     return 0;
-}
-
-node_t *trie_previous(node_t *node) {
-    if (node->child[0] != NULL) {
-        node = node->child[0];
-        while (node->child[1] != NULL) node = node->child[1];
-        return node;
-    }
-    while (node->parent != NULL && node->parent->child[0] == node) {
-        node = node->parent;
-    }
-    return node->parent;
-}
-
-node_t *trie_next(node_t *node) {
-    if (node->child[1] != NULL) {
-        node = node->child[1];
-        while (node->child[0] != NULL) node = node->child[0];
-        return node;
-    }
-    while (node->parent != NULL && node->parent->child[1] == node) {
-        node = node->parent;
-    }
-    return node->parent;
-}
-
-int COUNT = 10;
-
-void trie_print(node_t *root, int space) {
-    if (root == NULL) {
-        return;
-    }
-    // Increase distance between levels
-    space += COUNT;
-
-    // Process right child first
-    trie_print(root->child[1], space);
-
-    // Print current node after space
-    // count
-    printf("\n");
-    for (int i = COUNT; i < space; i++) {
-        printf(" ");
-    }
-    unsigned int val;
-    if (root->parent != NULL)
-        val = root->parent->child[0] == root ? 0 : 1;
-    else
-        val = 20;
-    if (root->ip != NULL)
-        printf("%d ip=%u mask=%d\n", val, root->ip->base, root->ip->mask);
-    else
-        printf("%d \n", val);
-    // Process left child
-    trie_print(root->child[0], space);
 }

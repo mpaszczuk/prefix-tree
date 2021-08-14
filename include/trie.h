@@ -29,4 +29,3 @@ node_t *trie_insert(trie_t *trie, ip_t *ip);
 node_t *trie_search(trie_t *trie, ip_t *ip);
 int trie_delete(trie_t *trie, ip_t *ip);
 node_t *trie_check(trie_t *trie, unsigned int ip);
-void trie_print(node_t *root, int space);
