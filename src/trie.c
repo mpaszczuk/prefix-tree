@@ -20,7 +20,10 @@ ip_t *new_ip_t() {
     return ip;
 }
 
-node_t *del_node_t(node_t *node) {
+int del_node_t(node_t *node) {
+    if(node == NULL){
+        return -1;
+    }
     if (node->ip != NULL) {
         free(node->ip);
         node->ip = NULL;
@@ -36,6 +39,7 @@ node_t *del_node_t(node_t *node) {
             node->parent->child[RIGHT_CHILD] = NULL;
         }
     }
+    return 0;
 }
 /* Generate bitmask filed with '1' of the same length as ip->bitmask */
 unsigned int get_bitmask(char mask) {
