@@ -57,6 +57,14 @@ void test_node_insert_wrong_ip(void) {
     TEST_ASSERT_TRUE(node == NULL);
 }
 
+void test_node_insert_small(void) {
+    ip_t ip = {
+        .base = ip_to_int(128, 0, 0, 0),
+        .mask = 2};
+    node_t *node = trie_insert(trie, &ip);
+    TEST_ASSERT_TRUE(check_node_ip_and_mask(node));
+}
+
 void test_node_insert(void) {
     ip_t ip = {
         .base = ip_to_int(10, 20, 0, 0),
