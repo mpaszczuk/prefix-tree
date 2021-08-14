@@ -2,6 +2,7 @@
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
 
 node_t *new_node_t() {
     node_t *node = malloc(sizeof(node_t));
@@ -39,6 +40,9 @@ node_t *del_node_t(node_t* node){
 }
 /* Generate bitmask filed with '1' of the same length as ip->bitmask */
 unsigned int get_bitmask(char mask){
+    if(mask ==32){
+        return UINT32_MAX;
+    }
     return ((1<<mask) - 1) << (32 - mask);
 }
 
@@ -112,11 +116,11 @@ node_t *trie_search(trie_t *trie, ip_t *ip) {
         return NULL;
     }
     for (int i = 0; i < ip->mask; ++i) {
-        unsigned int val = (ip->base & (1 << (32 - i - 1))) >> (32 - i - 1);
-        if (current->child[val] == NULL) {
+        unsigned int bit = get_bit(ip->base, i);
+        if (current->child[bit] == NULL) {
             return NULL;
         }
-        current = current->child[val];
+        current = current->child[bit];
     }
     return current;
 }
@@ -124,10 +128,10 @@ node_t *trie_search(trie_t *trie, ip_t *ip) {
 node_t *trie_check(trie_t *trie, unsigned int ip) {
     node_t *current = trie->root;
     node_t *previous = NULL;
-    for (unsigned int i = 1; current != NULL; ++i) {
+    for (unsigned int i = 0; current != NULL; ++i) {
         previous = current;
-        unsigned int val = (ip & (1 << (32 - i))) >> (32 - i); // TODO zobaczy czy to bangla
-        current = current->child[val];
+        unsigned int bit = get_bit(ip, i);
+        current = current->child[bit];
     }
     while (previous != NULL && previous->ip == NULL) {
         previous = previous->parent;
