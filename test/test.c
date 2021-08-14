@@ -1,8 +1,8 @@
 #include "ip.h"
-#include "malloc.h"
-#include "stdbool.h"
 #include "trie.h"
 #include "unity.h"
+#include <malloc.h>
+#include <stdbool.h>
 #include <stdlib.h>
 
 trie_t *trie = NULL;
@@ -216,7 +216,6 @@ void test_del_create_entire_trie_and_delete_one(void) {
 }
 
 void test_del_create_entire_trie_and_delete_all(void) {
-    unsigned int ip_number_to_del = 4;
     ip_t ips[] = {
         {ip_to_int(40, 0, 0, 0), 8},
         {ip_to_int(10, 0, 0, 0), 8},
@@ -252,14 +251,8 @@ void test_del_0_0(void) {
     ip_t ip1 = {
         .base = 0,
         .mask = 0};
-    node_t *node1 = trie_insert(trie, &ip1);
+    trie_insert(trie, &ip1);
     TEST_ASSERT(del(ip1.base, ip1.mask) == 0);
-}
-
-void test_del_ip_from_trie(void) {
-    add(ip_to_int(10, 10, 0, 0), 16);
-    add(ip_to_int(10, 20, 3, 0), 24);
-    add(ip_to_int(10, 10, 40, 20), 32);
 }
 
 void test_check(void) {

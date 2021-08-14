@@ -23,7 +23,6 @@ typedef struct {
 
 node_t *new_node_t();
 unsigned int get_bitmask(char mask);
-void trie_init(trie_t *trie_);
 void trie_deinit(trie_t *trie);
 node_t *trie_insert(trie_t *trie, ip_t *ip);
 node_t *trie_search(trie_t *trie, ip_t *ip);
