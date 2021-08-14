@@ -7,7 +7,6 @@ typedef enum {
     BLACK
 } color_t;
 
-
 typedef struct node_t node_t;
 
 typedef struct {
@@ -23,7 +22,7 @@ struct node_t {
     node_t *right;
 };
 void rb_insert(tree_t *tree, node_t *z);
-void rb_delete(tree_t *tree, node_t* z);
+void rb_delete(tree_t *tree, node_t *z);
 node_t *rb_tree_minimum(tree_t *tree, node_t *x);
 node_t *rb_tree_maximum(tree_t *tree, node_t *x);
-node_t *rb_search(tree_t *tree, ip_t *ip, int(*compare)(ip_t*, ip_t*));
+node_t *rb_search(tree_t *tree, ip_t *ip, int (*compare)(ip_t *, ip_t *));

@@ -17,7 +17,7 @@ int add(unsigned int base, char mask) {
         .base = base,
         .mask = mask};
     node_t *node = trie_insert(trie, &ip);
-    if(node == NULL){
+    if (node == NULL) {
         return -1;
     }
     return 0;

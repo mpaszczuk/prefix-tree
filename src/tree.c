@@ -3,7 +3,7 @@
 static void rb_left_rotate(tree_t *tree, node_t *x);
 static void rb_right_rotate(tree_t *tree, node_t *y);
 static void rb_insert_fixup(tree_t *tree, node_t *z);
-static void rb_transplant(tree_t *tree, node_t*u, node_t*v);
+static void rb_transplant(tree_t *tree, node_t *u, node_t *v);
 static void rb_delete_fixup(tree_t *tree, node_t *x);
 
 void rb_left_rotate(tree_t *tree, node_t *x) {
@@ -45,7 +45,7 @@ void rb_insert(tree_t *tree, node_t *z) {
     node_t *x = tree->root;
     while (x != tree->nil) {
         y = x;
-        if (compare(&z->key, &x->key) < 0 ) {
+        if (compare(&z->key, &x->key) < 0) {
             x = x->left;
         } else {
             x = x->right;
@@ -54,7 +54,7 @@ void rb_insert(tree_t *tree, node_t *z) {
     z->parent = y;
     if (y == tree->nil) {
         tree->root = z;
-    } else if (compare(&z->key, &y->key)< -1) {
+    } else if (compare(&z->key, &y->key) < -1) {
         y->left = z;
     } else {
         y->right = z;
@@ -64,40 +64,35 @@ void rb_insert(tree_t *tree, node_t *z) {
     z->color = RED;
 }
 
-void rb_insert_fixup(tree_t *tree, node_t *z){
-    while (z->parent->color == RED){
-        if(z->parent == z->parent->parent->left){
+void rb_insert_fixup(tree_t *tree, node_t *z) {
+    while (z->parent->color == RED) {
+        if (z->parent == z->parent->parent->left) {
             node_t *y = z->parent->parent->right;
-            if(y->color == RED){
+            if (y->color == RED) {
                 z->parent->color = BLACK;
                 y->color = BLACK;
                 z->parent->parent->color = RED;
                 z = z->parent->parent;
-            }
-            else if(z == z->parent->right){
+            } else if (z == z->parent->right) {
                 z = z->parent;
                 rb_left_rotate(tree, z);
-            }
-            else{
+            } else {
                 z->parent->color = BLACK;
                 z->parent->parent->color = RED;
                 rb_right_rotate(tree, z->parent->parent);
             }
-        }
-        else{
+        } else {
             //TODO to jest zjebane
             node_t *y = z->parent->parent->left;
-            if(y->color == RED){
+            if (y->color == RED) {
                 z->parent->color = BLACK;
                 y->color = BLACK;
                 z->parent->parent->color = RED;
                 z = z->parent->parent;
-            }
-            else if(z == z->parent->left){
+            } else if (z == z->parent->left) {
                 z = z->parent;
                 rb_left_rotate(tree, z);
-            }
-            else{
+            } else {
                 z->parent->color = BLACK;
                 z->parent->parent->color = RED;
                 rb_right_rotate(tree, z->parent->parent);
@@ -106,22 +101,20 @@ void rb_insert_fixup(tree_t *tree, node_t *z){
     }
 }
 
-void rb_transplant(tree_t *tree, node_t*u, node_t*v){
-    if (u->parent == tree->nil){ // tree->root == u
+void rb_transplant(tree_t *tree, node_t *u, node_t *v) {
+    if (u->parent == tree->nil) {// tree->root == u
         tree->root = v;
-    }
-    else if(u == u->parent->left){
+    } else if (u == u->parent->left) {
         u->parent->left = v;
-    }
-    else{
+    } else {
         u->parent->right = v;
     }
     v->parent = u->parent;
 }
 
-void rb_delete_fixup(tree_t *tree, node_t *x){
-    while ( x != tree->root && x->color ){
-        if(x == x->parent->left){
+void rb_delete_fixup(tree_t *tree, node_t *x) {
+    while (x != tree->root && x->color) {
+        if (x == x->parent->left) {
             node_t *w = x->parent->right;
             if (w->color == RED) {
                 w->color = BLACK;
@@ -129,25 +122,22 @@ void rb_delete_fixup(tree_t *tree, node_t *x){
                 rb_left_rotate(tree, x->parent);
                 w = x->parent->right;
             }
-            if(w->left->color == BLACK && w->right->color == BLACK){
+            if (w->left->color == BLACK && w->right->color == BLACK) {
                 w->color = RED;
                 x = x->parent;
-            }
-            else if(w->right->color == BLACK){
+            } else if (w->right->color == BLACK) {
                 w->left->color = BLACK;
                 w->color = RED;
                 rb_right_rotate(tree, w);
                 w = x->parent->right;
-            }
-            else{
+            } else {
                 w->color = x->parent->color;
                 x->parent->color = BLACK;
                 w->right->color = BLACK;
                 rb_left_rotate(tree, x->parent);
                 x = tree->root;
             }
-        }
-        else {
+        } else {
             node_t *w = x->parent->left;
             if (w->color == RED) {
                 w->color = BLACK;
@@ -155,17 +145,15 @@ void rb_delete_fixup(tree_t *tree, node_t *x){
                 rb_left_rotate(tree, x->parent);
                 w = x->parent->left;
             }
-            if(w->left->color == BLACK && w->right->color == BLACK){
+            if (w->left->color == BLACK && w->right->color == BLACK) {
                 w->color = RED;
                 x = x->parent;
-            }
-            else if(w->left->color == BLACK){
+            } else if (w->left->color == BLACK) {
                 w->right->color = BLACK;
                 w->color = RED;
                 rb_right_rotate(tree, w);
                 w = x->parent->left;
-            }
-            else{
+            } else {
                 w->color = x->parent->color;
                 x->parent->color = BLACK;
                 w->left->color = BLACK;
@@ -177,40 +165,37 @@ void rb_delete_fixup(tree_t *tree, node_t *x){
     x->color = BLACK;
 }
 
-node_t *rb_tree_minimum(tree_t *tree, node_t *x){
-    while( x->left != tree->nil){
+node_t *rb_tree_minimum(tree_t *tree, node_t *x) {
+    while (x->left != tree->nil) {
         x = x->left;
     }
     return x;
 }
 
-node_t *rb_tree_maximum(tree_t *tree, node_t *x){
-    while( x->right != tree->nil){
+node_t *rb_tree_maximum(tree_t *tree, node_t *x) {
+    while (x->right != tree->nil) {
         x = x->right;
     }
     return x;
 }
 
-void rb_delete(tree_t *tree, node_t* z){
+void rb_delete(tree_t *tree, node_t *z) {
     node_t *x = tree->nil;
     node_t *y = z;
     color_t y_original_color = y->color;
-    if(z->left == tree->nil){
+    if (z->left == tree->nil) {
         x = z->right;
         rb_transplant(tree, z, z->right);
-    }
-    else if(z->right == tree->nil){
+    } else if (z->right == tree->nil) {
         x = z->left;
         rb_transplant(tree, z, z->left);
-    }
-    else {
+    } else {
         y = rb_tree_minimum(tree, z->right);
         y_original_color = y->color;
         x = y->right;
-        if(y->parent == z){
+        if (y->parent == z) {
             x->parent = y;
-        }
-        else{
+        } else {
             rb_transplant(tree, y, y->right);
             y->right->parent = y;
         }
@@ -219,57 +204,50 @@ void rb_delete(tree_t *tree, node_t* z){
         y->left->parent = y;
         y->color = z->color;
     }
-    if(y_original_color == BLACK){
+    if (y_original_color == BLACK) {
         rb_delete_fixup(tree, x);
     }
 }
 
-node_t *rb_check(tree_t *tree, unsigned int ip){
+node_t *rb_check(tree_t *tree, unsigned int ip) {
     node_t *node = tree->root;
-    while(node != tree->nil){
+    while (node != tree->nil) {
         ip_t key = {
             .base = ip,
-            .mask = node->key.mask
-        };
-        if(compare (&node->key, &key)> 0){
+            .mask = node->key.mask};
+        if (compare(&node->key, &key) > 0) {
             node = node->right;
-        }
-        else if(compare(&node->key, &key) < 0){
+        } else if (compare(&node->key, &key) < 0) {
             node = node->left;
-        }
-        else{
+        } else {
             return node;
         }
     }
     return tree->nil;
 }
 
-node_t *rb_search(tree_t *tree, ip_t *ip, int(*compare)(ip_t*, ip_t*)){
+node_t *rb_search(tree_t *tree, ip_t *ip, int (*compare)(ip_t *, ip_t *)) {
     node_t *node = tree->root;
-    while(node != tree->nil){
-        if(compare (&node->key, ip)> 0){
+    while (node != tree->nil) {
+        if (compare(&node->key, ip) > 0) {
             node = node->right;
-        }
-        else if(compare(&node->key, ip) < 0){
+        } else if (compare(&node->key, ip) < 0) {
             node = node->left;
-        }
-        else{
+        } else {
             return node;
         }
     }
     return tree->nil;
 }
 
-node_t *rb_check(tree_t *tree, ip_t *ip, int(*compare)(ip_t*, ip_t*)) {
+node_t *rb_check(tree_t *tree, ip_t *ip, int (*compare)(ip_t *, ip_t *)) {
     node_t *node = tree->root;
-    while(node != tree->nil){
-        if(compare (&node->key, ip)> 0){
+    while (node != tree->nil) {
+        if (compare(&node->key, ip) > 0) {
             node = node->right;
-        }
-        else if(compare(&node->key, ip) < 0){
+        } else if (compare(&node->key, ip) < 0) {
             node = node->left;
-        }
-        else{
+        } else {
             return node;
         }
     }
