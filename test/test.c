@@ -206,7 +206,7 @@ void test_del_create_entire_trie_and_delete_one(void) {
     char error_msg[256];
     for (int i = 0; i < sizeof(ips) / sizeof(ips[0]); ++i) {
         if (i == ip_number_to_del) continue;
-        sprintf(error_msg, "Error at element %u", i);
+        sprintf(error_msg, "Error at element %d", i);
         TEST_ASSERT_MESSAGE(check_node_ip_and_mask(nodes[i]), error_msg);
         TEST_ASSERT(nodes[i]->ip->base == ips[i].base);
         TEST_ASSERT(nodes[i]->ip->mask == ips[i].mask);
@@ -241,7 +241,7 @@ void test_del_create_entire_trie_and_delete_all(void) {
     }
 
     for (int i = 0; i < sizeof(ips) / sizeof(ips[0]); ++i) {
-        sprintf(error_msg, "Error at element %u", i);
+        sprintf(error_msg, "Error at element %d", i);
         TEST_ASSERT_MESSAGE(del(ips[i].base, ips[i].mask) == 0, error_msg);
     }
     TEST_ASSERT(trie->root == NULL);

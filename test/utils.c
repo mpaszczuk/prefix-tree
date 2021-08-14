@@ -25,9 +25,9 @@ void trie_print(node_t *root, int space) {
     else
         val = 20;
     if (root->ip != NULL)
-        printf("%d ip=%u mask=%d\n", val, root->ip->base, root->ip->mask);
+        printf("%u ip=%u mask=%d\n", val, root->ip->base, root->ip->mask);
     else
-        printf("%d \n", val);
+        printf("%u \n", val);
     /*Process left child*/
     trie_print(root->child[LEFT_CHILD], space);
 }
