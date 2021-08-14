@@ -1,7 +1,6 @@
 #include "trie.h"
 #include <stddef.h>
 #include <stdint.h>
-#include <stdio.h>
 #include <stdlib.h>
 
 node_t *new_node_t() {
