@@ -1,5 +1,28 @@
 # IP PREFIX MANAGER
 
+# Compiling
+
+```sh
+git submodule update --init
+mkdir -p build
+cd build
+cmake ..
+cmake --build .
+```
+
+### Requirements
+
+* gcc
+* cmake
+
+# Testing
+
+```sh
+cd build
+ctest -v
+```
+
+
 # Algorithm
 
 Used data structure is trie which is known as prefix tree. 
