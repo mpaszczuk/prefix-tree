@@ -1,7 +1,11 @@
 #include "trie.h"
+#include "mask.h"
 #include <stddef.h>
-#include <stdint.h>
 #include <stdlib.h>
+
+static node_t *new_node_t();
+static ip_t *new_ip_t();
+static int del_node_t(node_t *node);
 
 node_t *new_node_t() {
     node_t *node = malloc(sizeof(node_t));
@@ -96,6 +100,12 @@ void node_deinit(node_t *node) {
         }
     }
     del_node_t(node);
+}
+
+trie_t *trie_init() {
+    trie_t *trie = (trie_t *) malloc(sizeof(trie_t));
+    trie->root = NULL;
+    return trie;
 }
 
 void trie_deinit(trie_t *trie) {
