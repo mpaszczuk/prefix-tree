@@ -1,52 +1,21 @@
 #include "ip.h"
+#include "mask.h"
+#include "test_utils.h"
 #include "trie.h"
-#include "unity.h"
 #include <malloc.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include <unity.h>
 
 trie_t *trie = NULL;
 
 void setUp(void) {
-    trie = malloc(sizeof(trie_t));
-    init_ip_trie(trie);
+    trie = trie_init();
 }
 
 void tearDown(void) {
-    deinit_ip_trie();
+    trie_deinit(trie);
     trie = NULL;
-}
-
-unsigned int ip_to_int(unsigned char ip1, unsigned char ip2, unsigned char ip3, unsigned char ip4) {
-    return (unsigned int) (ip1 << 24) | (ip2 << 16) | (ip3 << 8) | ip4;
-}
-
-bool check_parent_child_relation(node_t *parent, node_t *child, int child_number) {
-    /* Check parent-child and child-parent relation */
-    if (child->parent != parent || parent->child[child_number] != child) {
-        return false;
-    }
-    return true;
-}
-
-bool check_node_ip_and_mask(node_t *node) {
-    if (node == NULL) {
-        return false;
-    }
-    unsigned int ip = 0;
-    char mask;
-    node_t *current = node;
-    for (mask = 0; mask < IP_LENGTH; ++mask) {
-        if (current->parent != NULL) {
-            unsigned int tmp = current->parent->child[LEFT_CHILD] == current ? LEFT_CHILD : RIGHT_CHILD;
-            ip |= tmp << mask;
-            current = current->parent;
-        } else {
-            break;
-        }
-    }
-    ip = ip << (IP_LENGTH - mask);
-    return node->ip->base == ip && node->ip->mask == mask;
 }
 
 void test_node_insert_wrong_ip(void) {
@@ -175,13 +144,19 @@ void test_trie_insert_all(void) {
 }
 
 void test_del_ip(void) {
-    add(ip_to_int(10, 10, 0, 0), 16);
-    TEST_ASSERT(del(ip_to_int(10, 10, 0, 0), 16) == 0);
+    ip_t ip;
+    ip.base = ip_to_int(10, 10, 0, 0);
+    ip.mask = 16;
+    trie_insert(trie, &ip);
+    TEST_ASSERT(trie_delete(trie, &ip) == 0);
     TEST_ASSERT_TRUE(trie->root == NULL);
 }
 
 void test_del_ip_wrong_address(void) {
-    add(ip_to_int(10, 10, 0, 0), 16);
+    ip_t ip;
+    ip.base = ip_to_int(10, 10, 0, 0);
+    ip.mask = 16;
+    trie_insert(trie, &ip);
     TEST_ASSERT(del(ip_to_int(10, 20, 0, 0), 16) == -1);
 }
 
@@ -209,7 +184,7 @@ void test_del_create_entire_trie_and_delete_one(void) {
     for (int i = 0; i < sizeof(ips) / sizeof(ips[0]); ++i) {
         nodes[i] = trie_insert(trie, &ips[i]);
     }
-    TEST_ASSERT(del(ips[ip_number_to_del].base, ips[ip_number_to_del].mask) == 0);
+    TEST_ASSERT(trie_delete(trie, &ips[ip_number_to_del]) == 0);
 
     char error_msg[256];
     for (int i = 0; i < sizeof(ips) / sizeof(ips[0]); ++i) {
@@ -250,7 +225,7 @@ void test_del_create_entire_trie_and_delete_all(void) {
 
     for (int i = 0; i < sizeof(ips) / sizeof(ips[0]); ++i) {
         sprintf(error_msg, "Error at element %d", i);
-        TEST_ASSERT_MESSAGE(del(ips[i].base, ips[i].mask) == 0, error_msg);
+        TEST_ASSERT_MESSAGE(trie_delete(trie, &ips[i]) == 0, error_msg);
     }
     TEST_ASSERT(trie->root == NULL);
 }
@@ -260,13 +235,20 @@ void test_del_0_0(void) {
         .base = 0,
         .mask = 0};
     trie_insert(trie, &ip1);
-    TEST_ASSERT(del(ip1.base, ip1.mask) == 0);
+    TEST_ASSERT(trie_delete(trie, &ip1) == 0);
 }
 
-void test_check(void) {
-    add(ip_to_int(10, 10, 0, 0), 16);
-    add(ip_to_int(10, 20, 1, 0), 24);
-    add(ip_to_int(10, 30, 1, 0), 24);
+void test_trie_check(void) {
+    ip_t ip;
+    ip.base = ip_to_int(10, 10, 0, 0);
+    ip.mask = 16;
+    trie_insert(trie, &ip);
+    ip.base = ip_to_int(10, 20, 1, 0);
+    ip.mask = 24;
+    trie_insert(trie, &ip);
+    ip.base = ip_to_int(10, 30, 1, 0);
+    ip.mask = 24;
+    trie_insert(trie, &ip);
 
     node_t *node = trie_check(trie, ip_to_int(10, 10, 20, 1));
     TEST_ASSERT(node->ip->base == ip_to_int(10, 10, 0, 0));
@@ -274,26 +256,54 @@ void test_check(void) {
 }
 
 void test_check_wrong_ip(void) {
-    add(ip_to_int(10, 10, 0, 0), 16);
-    add(ip_to_int(10, 20, 1, 0), 24);
-    add(ip_to_int(10, 30, 1, 0), 24);
-    add(ip_to_int(10, 0, 0, 0), 8);
-    add(ip_to_int(100, 40, 32, 1), 32);
+    ip_t ip;
+    ip.base = ip_to_int(10, 10, 0, 0);
+    ip.mask = 16;
+    trie_insert(trie, &ip);
+    ip.base = ip_to_int(10, 20, 1, 0);
+    ip.mask = 24;
+    trie_insert(trie, &ip);
+    ip.base = ip_to_int(10, 30, 1, 0);
+    ip.mask = 24;
+    trie_insert(trie, &ip);
+    ip.base = ip_to_int(10, 0, 0, 0);
+    ip.mask = 8;
+    trie_insert(trie, &ip);
+    ip.base = ip_to_int(100, 40, 32, 1);
+    ip.mask = 32;
+    trie_insert(trie, &ip);
 
     node_t *node = trie_check(trie, ip_to_int(50, 10, 20, 1));
     TEST_ASSERT(node == NULL);
 }
 
 void test_check_maximum_mask(void) {
-    add(ip_to_int(10, 10, 0, 0), 16);
-    add(ip_to_int(10, 20, 1, 0), 24);
-    add(ip_to_int(10, 30, 1, 0), 24);
-    add(ip_to_int(50, 40, 32, 1), 32);
+    ip_t ip;
+    ip.base = ip_to_int(10, 10, 0, 0);
+    ip.mask = 16;
+    trie_insert(trie, &ip);
+    ip.base = ip_to_int(10, 20, 1, 0);
+    ip.mask = 24;
+    trie_insert(trie, &ip);
+    ip.base = ip_to_int(10, 30, 1, 0);
+    ip.mask = 24;
+    trie_insert(trie, &ip);
+    ip.base = ip_to_int(50, 40, 32, 1);
+    ip.mask = 32;
+    trie_insert(trie, &ip);
 
-    add(ip_to_int(100, 0, 0, 0), 8);
-    add(ip_to_int(100, 40, 0, 0), 16);
-    add(ip_to_int(100, 40, 32, 0), 24);
-    add(ip_to_int(100, 40, 32, 1), 32);
+    ip.base = ip_to_int(100, 0, 0, 0);
+    ip.mask = 8;
+    trie_insert(trie, &ip);
+    ip.base = ip_to_int(100, 40, 0, 0);
+    ip.mask = 16;
+    trie_insert(trie, &ip);
+    ip.base = ip_to_int(100, 40, 32, 0);
+    ip.mask = 24;
+    trie_insert(trie, &ip);
+    ip.base = ip_to_int(100, 40, 32, 1);
+    ip.mask = 32;
+    trie_insert(trie, &ip);
 
     node_t *node = trie_check(trie, ip_to_int(100, 50, 50, 50));
     TEST_ASSERT(node->ip->base == ip_to_int(100, 0, 0, 0) && node->ip->mask == 8);
@@ -306,40 +316,73 @@ void test_check_maximum_mask(void) {
 }
 
 void test_check_same_ip_diff_mask(void) {
-    add(ip_to_int(10, 10, 0, 0), 16);
-    add(ip_to_int(10, 20, 1, 0), 24);
-    add(ip_to_int(10, 30, 1, 0), 24);
-    add(ip_to_int(50, 40, 32, 1), 32);
+    ip_t ip;
+    ip.base = ip_to_int(10, 10, 0, 0);
+    ip.mask = 16;
+    trie_insert(trie, &ip);
+    ip.base = ip_to_int(10, 20, 1, 0);
+    ip.mask = 24;
+    trie_insert(trie, &ip);
+    ip.base = ip_to_int(10, 30, 1, 0);
+    ip.mask = 24;
+    trie_insert(trie, &ip);
+    ip.base = ip_to_int(50, 40, 32, 1);
+    ip.mask = 32;
+    trie_insert(trie, &ip);
 
-    add(ip_to_int(100, 0, 0, 0), 8);
-    add(ip_to_int(100, 0, 0, 0), 16);
-    add(ip_to_int(100, 0, 0, 0), 24);
+    ip.base = ip_to_int(100, 0, 0, 0);
+    ip.mask = 8;
+    trie_insert(trie, &ip);
+    ip.base = ip_to_int(100, 0, 0, 0);
+    ip.mask = 16;
+    trie_insert(trie, &ip);
+    ip.base = ip_to_int(100, 0, 0, 0);
+    ip.mask = 24;
+    trie_insert(trie, &ip);
 
     node_t *node = trie_check(trie, ip_to_int(100, 0, 0, 0));
     TEST_ASSERT(node->ip->base == ip_to_int(100, 0, 0, 0) && node->ip->mask == 24);
 }
 
 void test_check_ip_0_0(void) {
-    add(ip_to_int(10, 10, 0, 0), 16);
-    add(ip_to_int(10, 20, 1, 0), 24);
-    add(ip_to_int(10, 30, 1, 0), 24);
-    add(ip_to_int(50, 40, 32, 1), 32);
+    ip_t ip;
+    ip.base = ip_to_int(10, 10, 0, 0);
+    ip.mask = 16;
+    trie_insert(trie, &ip);
+    ip.base = ip_to_int(10, 20, 1, 0);
+    ip.mask = 24;
+    trie_insert(trie, &ip);
+    ip.base = ip_to_int(10, 30, 1, 0);
+    ip.mask = 24;
+    trie_insert(trie, &ip);
+    ip.base = ip_to_int(50, 40, 32, 1);
+    ip.mask = 32;
+    trie_insert(trie, &ip);
 
     node_t *node = trie_check(trie, ip_to_int(0, 0, 0, 0));
     TEST_ASSERT(node == NULL);
 
-    add(ip_to_int(0, 0, 0, 0), 0);
+    ip.base = ip_to_int(0, 0, 0, 0);
+    ip.mask = 0;
+    trie_insert(trie, &ip);
     node = trie_check(trie, ip_to_int(0, 0, 0, 0));
     TEST_ASSERT(node->ip->base == ip_to_int(0, 0, 0, 0) && node->ip->mask == 0);
 }
 
 void test_search(void) {
-    ip_t ip = {
-        .base = ip_to_int(10, 10, 0, 0),
-        .mask = 16};
+    ip_t ip;
+
+    ip.base = ip_to_int(243, 20, 0, 0);
+    ip.mask = 16;
+    trie_insert(trie, &ip);
+
+    ip.base = ip_to_int(243, 20, 32, 0);
+    ip.mask = 24;
+    trie_insert(trie, &ip);
+
+    ip.base = ip_to_int(10, 10, 0, 0);
+    ip.mask = 16;
     node_t *node = trie_insert(trie, &ip);
-    add(ip_to_int(243, 20, 0, 0), 16);
-    add(ip_to_int(243, 20, 32, 0), 24);
     node_t *node_searched = trie_search(trie, &ip);
     TEST_ASSERT(node == node_searched);
 }
@@ -348,26 +391,56 @@ void test_search_wrong(void) {
     ip_t ip_to_search = {
         .base = ip_to_int(10, 10, 0, 0),
         .mask = 16};
-    add(ip_to_int(243, 20, 0, 0), 16);
-    add(ip_to_int(243, 20, 32, 0), 24);
-    add(ip_to_int(128, 20, 32, 0), 24);
-    add(ip_to_int(25, 20, 32, 0), 24);
-    add(ip_to_int(69, 69, 69, 0), 24);
+    ip_t ip;
+    ip.base = ip_to_int(243, 20, 0, 0);
+    ip.mask = 16;
+    trie_insert(trie, &ip);
+    ip.base = ip_to_int(243, 20, 32, 0);
+    ip.mask = 24;
+    trie_insert(trie, &ip);
+    ip.base = ip_to_int(128, 20, 32, 0);
+    ip.mask = 24;
+    trie_insert(trie, &ip);
+    ip.base = ip_to_int(25, 20, 32, 0);
+    ip.mask = 24;
+    trie_insert(trie, &ip);
+    ip.base = ip_to_int(69, 69, 69, 0);
+    ip.mask = 24;
+    trie_insert(trie, &ip);
     node_t *node_searched = trie_search(trie, &ip_to_search);
     TEST_ASSERT(node_searched == NULL);
 }
 
 void test_search_0_0(void) {
-    ip_t ip = {
-        .base = ip_to_int(0, 0, 0, 0),
-        .mask = 0};
+    ip_t ip;
+
+    ip.base = ip_to_int(243, 20, 0, 0);
+    ip.mask = 16;
+    trie_insert(trie, &ip);
+
+    ip.base = ip_to_int(243, 20, 0, 0);
+    ip.mask = 16;
+    trie_insert(trie, &ip);
+
+    ip.base = ip_to_int(243, 20, 32, 0);
+    ip.mask = 24;
+    trie_insert(trie, &ip);
+
+    ip.base = ip_to_int(128, 20, 32, 0);
+    ip.mask = 24;
+    trie_insert(trie, &ip);
+
+    ip.base = ip_to_int(25, 20, 32, 0);
+    ip.mask = 24;
+    trie_insert(trie, &ip);
+
+    ip.base = ip_to_int(49, 49, 49, 0);
+    ip.mask = 24;
+    trie_insert(trie, &ip);
+
+    ip.base = ip_to_int(0, 0, 0, 0);
+    ip.mask = 0;
     node_t *node = trie_insert(trie, &ip);
-    add(ip_to_int(243, 20, 0, 0), 16);
-    add(ip_to_int(243, 20, 0, 0), 16);
-    add(ip_to_int(243, 20, 32, 0), 24);
-    add(ip_to_int(128, 20, 32, 0), 24);
-    add(ip_to_int(25, 20, 32, 0), 24);
-    add(ip_to_int(69, 69, 69, 0), 24);
     node_t *node_searched = trie_search(trie, &ip);
     TEST_ASSERT(node_searched == node);
 }
@@ -392,7 +465,7 @@ int main(void) {
     RUN_TEST(test_del_create_entire_trie_and_delete_all);
     RUN_TEST(test_del_0_0);
 
-    RUN_TEST(test_check);
+    RUN_TEST(test_trie_check);
     RUN_TEST(test_check_wrong_ip);
     RUN_TEST(test_check_maximum_mask);
     RUN_TEST(test_check_same_ip_diff_mask);
