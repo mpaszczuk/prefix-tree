@@ -5,8 +5,8 @@
 
 node_t *new_node_t() {
     node_t *node = malloc(sizeof(node_t));
-    node->child = malloc(2 * sizeof(node_t *));
-    node->child[0] = node->child[1] = NULL;
+    node->child = malloc(MAX_NUMBER_OF_CHILDREN * sizeof(node_t *));
+    node->child[LEFT_CHILD] = node->child[RIGHT_CHILD] = NULL;
     node->ip = NULL;
     node->parent = NULL;
     return node;
@@ -20,8 +20,8 @@ ip_t *new_ip_t() {
 }
 
 int del_node_t(node_t *node) {
-    if(node == NULL){
-        return -1;
+    if (node == NULL) {
+        return TRIE_ERROR;
     }
     if (node->ip != NULL) {
         free(node->ip);
@@ -45,19 +45,7 @@ int del_node_t(node_t *node) {
         }
     }
     free(node);
-    return 0;
-}
-/* Generate bitmask filed with '1' of the same length as ip->bitmask */
-unsigned int get_bitmask(char mask) {
-    if (mask == 32) {
-        return UINT32_MAX;
-    }
-    return ((1 << mask) - 1) << (32 - mask);
-}
-
-/*Get bit of value at position bit_number*/
-unsigned int get_bit(unsigned int value, unsigned char bit_number) {
-    return (value & (1 << (32 - bit_number - 1))) >> (32 - bit_number - 1);
+    return TRIE_OK;
 }
 
 node_t *trie_insert(trie_t *trie, ip_t *ip_) {
@@ -85,7 +73,7 @@ node_t *trie_insert(trie_t *trie, ip_t *ip_) {
     node_t *current = trie->root;
     /*Iterate through subsequent bits of ip  */
     for (unsigned int i = 0; i < ip->mask; ++i) {
-        unsigned int bit = (ip->base & (1 << (32 - i - 1))) >> (32 - i - 1);
+        unsigned int bit = (ip->base & (1 << (UINT32_LEN - i - 1))) >> (UINT32_LEN - i - 1);
         /* Check if child on specific position exists and if needed create new node */
         if (current->child[bit] == NULL) {
             current->child[bit] = new_node_t();
@@ -151,7 +139,7 @@ int trie_delete(trie_t *trie, ip_t *ip) {
     for (unsigned char i = 0; i < ip->mask; ++i) {
         unsigned int bit = get_bit(ip->base, i);
         if (current->child[bit] == NULL) {
-            return -1;
+            return TRIE_ERROR;
         }
         current = current->child[bit];
     }
@@ -159,7 +147,7 @@ int trie_delete(trie_t *trie, ip_t *ip) {
         free(current->ip);
         current->ip = NULL;
     } else {
-        return -1;
+        return TRIE_ERROR;
     }
     node_t *parent;
     /* Remove nodes in branch without any child and ip. */
@@ -171,5 +159,5 @@ int trie_delete(trie_t *trie, ip_t *ip) {
         del_node_t(current);
         current = parent;
     }
-    return 0;
+    return TRIE_OK;
 }

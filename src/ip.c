@@ -1,11 +1,11 @@
 #include "ip.h"
 #include <stdlib.h>
+#include "trie.h"
 
-static trie_t *trie;
+static trie_t *trie = NULL;
 
-void init_ip_trie(trie_t *trie_) {
-    trie = trie_;
-    trie->root = NULL;
+void init_ip_trie() {
+    trie = trie_init();
 }
 
 void deinit_ip_trie() {
@@ -25,9 +25,9 @@ int add(unsigned int base, char mask) {
         .mask = mask};
     node_t *node = trie_insert(trie, &ip);
     if (node == NULL) {
-        return -1;
+        return IP_ERROR;
     }
-    return 0;
+    return IP_OK;
 }
 
 int del(unsigned int base, char mask) {
@@ -51,5 +51,5 @@ char check(unsigned int ip) {
     if (ip_node != NULL) {
         return ip_node->ip->mask;
     }
-    return -1;
+    return IP_ERROR;
 }

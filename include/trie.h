@@ -4,6 +4,10 @@
 #define RIGHT_CHILD 1
 #define MAX_NUMBER_OF_CHILDREN 2
 
+#define TRIE_ERROR (-1)
+#define TRIE_OK 0
+
+
 typedef struct {
     unsigned int base;
     char mask;
